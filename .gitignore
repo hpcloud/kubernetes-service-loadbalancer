@@ -1,4 +1,5 @@
 kube-loadbalancer
 loadbalancer-daemon
+!loadbalancer-daemon/
 osx-kube-loadbalancer
 osx-loadbalancer-daemon

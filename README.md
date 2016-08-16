@@ -1,4 +1,4 @@
-# High Available Multi-Backend Load balancer
+# High Available Multi-Backend Load balancer for Kubernetes Service
 
 The project implements a load balancer controller that will provide a high available and load balancing access to HTTP and TCP kubernetes applications. It also provide SSL support for http apps.
 
