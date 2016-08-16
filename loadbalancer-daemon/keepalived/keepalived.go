@@ -27,7 +27,7 @@ import (
 	"text/template"
 
 	"github.com/golang/glog"
-	"k8s.io/contrib/loadbalancer/loadbalancer-daemon/utils"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon/utils"
 	k8sexec "k8s.io/kubernetes/pkg/util/exec"
 	"k8s.io/kubernetes/pkg/util/sets"
 	"k8s.io/kubernetes/pkg/util/sysctl"

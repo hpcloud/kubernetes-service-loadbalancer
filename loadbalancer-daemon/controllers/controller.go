@@ -24,9 +24,9 @@ import (
 
 	"github.com/golang/glog"
 
-	factory "k8s.io/contrib/loadbalancer/loadbalancer-daemon/backend"
-	"k8s.io/contrib/loadbalancer/loadbalancer-daemon/keepalived"
-	"k8s.io/contrib/loadbalancer/loadbalancer/utils"
+	factory "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon/backend"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon/keepalived"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/utils"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/client/cache"
 	client "k8s.io/kubernetes/pkg/client/unversioned"

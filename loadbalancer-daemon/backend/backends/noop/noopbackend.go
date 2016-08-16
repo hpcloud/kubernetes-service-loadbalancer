@@ -18,7 +18,7 @@ package backends
 
 import (
 	"github.com/golang/glog"
-	factory "k8s.io/contrib/loadbalancer/loadbalancer-daemon/backend"
+	factory "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon/backend"
 )
 
 // NoOpController Controller for noop backend

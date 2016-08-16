@@ -18,7 +18,7 @@ package backends
 
 import (
 	// backends
-	_ "k8s.io/contrib/loadbalancer/loadbalancer/backend/backends/daemon"
-	_ "k8s.io/contrib/loadbalancer/loadbalancer/backend/backends/f5"
-	_ "k8s.io/contrib/loadbalancer/loadbalancer/backend/backends/openstack/lbaasv2"
+	_ "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/backend/backends/daemon"
+	_ "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/backend/backends/f5"
+	_ "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/backend/backends/openstack/lbaasv2"
 )

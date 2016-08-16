@@ -9,7 +9,7 @@ ifeq ($(OS),Linux)
 	GO_BUILD:=CGO_ENABLED=0 GOOS=linux godep go build -a -installsuffix cgo -ldflags '-w' -o loadbalancer-daemon *.go
 	GO_TEST=godep go test ./...
 else
-	GO_BUILD:=docker run --rm -v $(ROOT_DIR)/../:/go/src/k8s.io/contrib/loadbalancer -w /go/src/k8s.io/contrib/loadbalancer/loadbalancer-daemon golang:$(GOVERSION) make
+	GO_BUILD:=docker run --rm -v $(ROOT_DIR)/../:/go/src/github.com/hpcloud/kubernetes-service-loadbalancer -w /go/src/github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon golang:$(GOVERSION) make
 	GO_TEST:=$(GO_BUILD) test
 endif
 

@@ -18,6 +18,6 @@ package backends
 
 import (
 	// backends
-	_ "k8s.io/contrib/loadbalancer/loadbalancer-daemon/backend/backends/nginx"
-	_ "k8s.io/contrib/loadbalancer/loadbalancer-daemon/backend/backends/noop"
+	_ "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon/backend/backends/nginx"
+	_ "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon/backend/backends/noop"
 )

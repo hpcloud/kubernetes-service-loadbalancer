@@ -22,10 +22,10 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/backend"
+	_ "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/backend/backends"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/controllers"
 	"github.com/spf13/pflag"
-	"k8s.io/contrib/loadbalancer/loadbalancer/backend"
-	_ "k8s.io/contrib/loadbalancer/loadbalancer/backend/backends"
-	"k8s.io/contrib/loadbalancer/loadbalancer/controllers"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/kubectl/cmd/util"

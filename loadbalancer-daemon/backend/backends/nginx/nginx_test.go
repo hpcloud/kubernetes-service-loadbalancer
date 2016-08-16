@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"testing"
 
-	factory "k8s.io/contrib/loadbalancer/loadbalancer-daemon/backend"
+	factory "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon/backend"
 )
 
 func TestGetNGINXConfigFileName(t *testing.T) {

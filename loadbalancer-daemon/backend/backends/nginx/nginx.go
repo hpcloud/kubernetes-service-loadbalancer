@@ -27,8 +27,8 @@ import (
 	"strconv"
 	"sync"
 
-	factory "k8s.io/contrib/loadbalancer/loadbalancer-daemon/backend"
-	"k8s.io/contrib/loadbalancer/loadbalancer-daemon/utils"
+	factory "github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon/backend"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer-daemon/utils"
 
 	"github.com/golang/glog"
 )

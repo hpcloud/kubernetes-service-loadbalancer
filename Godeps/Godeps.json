@@ -1,5 +1,5 @@
 {
-	"ImportPath": "k8s.io/contrib/loadbalancer",
+	"ImportPath": "github.com/hpcloud/kubernetes-service-loadbalancer",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Packages": [

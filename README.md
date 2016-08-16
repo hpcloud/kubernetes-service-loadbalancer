@@ -216,4 +216,20 @@ Service-loadbalancer support for L4 is very limited. The binding-port needs to b
 
 1. The apps are accessed via a nodePort in the K8 nodes which is in the range of 30000-32767. Make sure they are open in the nodes. Also make sure to open up any ports that bind to the load balancer, such as port 80 in this case.
 
+
+## Building
+
+### Loadbalancer
+
+```
+$ cd loadbalancer
+$ make container
+```
+
+### Loadbalancer Daemon
+
+```
+$ cd loadbalancer-daemon
+$ make container
+```
 **Note**: Implementations are experimental and not suitable for using in production. This project is still in its early stage and many things are still in work in progress.

@@ -24,9 +24,9 @@ import (
 	"sync"
 
 	"github.com/golang/glog"
-	"k8s.io/contrib/loadbalancer/loadbalancer/backend"
-	"k8s.io/contrib/loadbalancer/loadbalancer/controllers"
-	"k8s.io/contrib/loadbalancer/loadbalancer/utils"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/backend"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/controllers"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/utils"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/client/unversioned"
 )
