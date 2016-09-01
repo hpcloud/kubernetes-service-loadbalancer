@@ -22,6 +22,7 @@ import (
 	"sync"
 
 	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/unversioned"
 
 	"github.com/golang/glog"
@@ -36,6 +37,8 @@ type BackendController interface {
 	HandleNodeCreate(node *api.Node)
 	HandleNodeDelete(node *api.Node)
 	HandleNodeUpdate(oldNode *api.Node, curNode *api.Node)
+	HandleIngressCreate(ingress *extensions.Ingress) error
+	HandleIngressDelete(ingress *extensions.Ingress)
 }
 
 // BackendControllerFactory Factory for Backend controllers
