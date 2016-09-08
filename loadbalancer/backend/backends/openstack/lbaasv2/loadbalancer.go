@@ -23,6 +23,8 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/backend"
+	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/utils"
 	"github.com/rackspace/gophercloud"
 	openstack_lib "github.com/rackspace/gophercloud/openstack"
 	"github.com/rackspace/gophercloud/openstack/networking/v2/extensions/lbaas_v2/listeners"
@@ -31,9 +33,8 @@ import (
 	"github.com/rackspace/gophercloud/openstack/networking/v2/extensions/lbaas_v2/pools"
 	"github.com/rackspace/gophercloud/openstack/networking/v2/subnets"
 	"github.com/rackspace/gophercloud/pagination"
-	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/backend"
-	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/utils"
 	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/util/wait"
 )
@@ -685,4 +686,9 @@ func (lbaas *LBaaSController) getReadyNodeIPs() ([]string, error) {
 		nodeIPs = append(nodeIPs, *ip)
 	}
 	return nodeIPs, nil
+}
+
+// HandleIngressCreate creates a new lbaas loadbalancer resource
+func (lbaas *LBaaSController) HandleIngressCreate(ingress *extensions.Ingress) error {
+	return nil
 }

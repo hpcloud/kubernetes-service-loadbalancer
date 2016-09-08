@@ -38,7 +38,6 @@ type BackendController interface {
 	HandleNodeDelete(node *api.Node)
 	HandleNodeUpdate(oldNode *api.Node, curNode *api.Node)
 	HandleIngressCreate(ingress *extensions.Ingress) error
-	HandleIngressDelete(ingress *extensions.Ingress)
 }
 
 // BackendControllerFactory Factory for Backend controllers

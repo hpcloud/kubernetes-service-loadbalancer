@@ -286,13 +286,4 @@ func (lbController *LoadBalancerController) syncIngressStatus(key string) {
 			return
 		}
 	}()
-
-	ing := obj.(*extensions.Ingress)
-	ingClient := lbController.client.Extensions().Ingress(ing.Namespace)
-
-	currIng, err := ingClient.Get(ing.Name)
-	if err != nil {
-		glog.Errorf("unexpected error searching Ingress %v/%v: %v", ing.Namespace, ing.Name, err)
-		return
-	}
 }

@@ -28,6 +28,7 @@ import (
 	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/controllers"
 	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/utils"
 	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/unversioned"
 )
 
@@ -138,7 +139,7 @@ func (lbControl *LoadbalancerDaemonController) HandleConfigMapCreate(configMap *
 	}
 
 	//generate Virtual IP
-	bindIP, err := lbControl.ipManager.GenerateVirtualIP(configMap)
+	bindIP, err := lbControl.ipManager.GenerateVirtualIP(configMap, nil)
 	if err != nil {
 		err = fmt.Errorf("Error generating Virtual IP - %v", err)
 		return err
@@ -232,4 +233,51 @@ func (lbControl *LoadbalancerDaemonController) getDaemonConfigMap() *api.ConfigM
 		}
 	}
 	return cm
+}
+
+// HandleIngressCreate a new loadbalancer resource
+func (lbControl *LoadbalancerDaemonController) HandleIngressCreate(ingress *extensions.Ingress) error {
+	// Block execution until the ip config map gets updated
+	configMapMutex.Lock()
+	defer configMapMutex.Unlock()
+
+	name := ingress.Namespace + "-" + ingress.Name
+	glog.Infof("Adding group %v to daemon configmap", name)
+
+	daemonCM := lbControl.getDaemonConfigMap()
+	daemonData := daemonCM.Data
+
+	namespace := ingress.Namespace
+	serviceName := ingress.Spec.Backend.ServiceName
+
+	serviceObj, err := lbControl.kubeClient.Services(namespace).Get(serviceName)
+	if err != nil {
+		err = fmt.Errorf("Error getting service object %v/%v. %v", namespace, serviceName, err)
+		return err
+	}
+
+	//generate Virtual IP
+	bindIP, err := lbControl.ipManager.GenerateVirtualIP(nil, ingress)
+	if err != nil {
+		err = fmt.Errorf("Error generating Virtual IP - %v", err)
+		return err
+	}
+
+	servicePorts := serviceObj.Spec.Ports
+	if len(servicePorts) == 0 {
+		err = fmt.Errorf("Could not find any port from service %v.", serviceName)
+		return err
+	}
+	daemonData[name+".namespace"] = namespace
+	daemonData[name+".bind-ip"] = bindIP
+	daemonData[name+".target-service-name"] = serviceName
+	daemonData[name+".target-ip"] = serviceObj.Spec.ClusterIP
+	port := servicePorts[0]
+	daemonData[name+".port"] = strconv.Itoa(int(port.Port))
+
+	_, err = lbControl.kubeClient.ConfigMaps(lbControl.namespace).Update(daemonCM)
+	if err != nil {
+		glog.Infof("Error updating daemon configmap %v: %v", daemonCM.Name, err)
+	}
+	return nil
 }

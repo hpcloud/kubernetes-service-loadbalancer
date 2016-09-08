@@ -26,6 +26,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/utils"
 	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/unversioned"
 )
 
@@ -130,15 +131,20 @@ func (ipManager *IPManager) checkConfigMap(cmName string) (bool, string) {
 }
 
 // GenerateVirtualIP gets a VIP for the configmap passed and allocates to be used for loadbalancer
-func (ipManager *IPManager) GenerateVirtualIP(configMap *api.ConfigMap) (string, error) {
+func (ipManager *IPManager) GenerateVirtualIP(configMap *api.ConfigMap, ingress *extensions.Ingress) (string, error) {
 
 	// Block execution until the ip config map gets updated with the new virtual IP
 	ipConfigMutex.Lock()
 	defer ipConfigMutex.Unlock()
 
+	resourceName := ""
+	if configMap == nil {
+		resourceName = ingress.Namespace + "-" + ingress.Name
+	} else {
+		resourceName = configMap.Namespace + "-" + configMap.Name
+	}
 	//check if the user configmap entry already exists in ip configmap
-	cmName := configMap.Namespace + "-" + configMap.Name
-	if ok, vip := ipManager.checkConfigMap(cmName); ok {
+	if ok, vip := ipManager.checkConfigMap(resourceName); ok {
 		return vip, nil
 	}
 
@@ -150,8 +156,8 @@ func (ipManager *IPManager) GenerateVirtualIP(configMap *api.ConfigMap) (string,
 	//update ipConfigMap to add new configMap entry
 	ipConfigMap := ipManager.getIPConfigMap()
 	ipConfigMapData := ipConfigMap.Data
-	name := configMap.Namespace + "-" + configMap.Name
-	ipConfigMapData[virtualIP] = name
+	// name := configMap.Namespace + "-" + configMap.Name
+	ipConfigMapData[virtualIP] = resourceName
 
 	err = ipManager.updateIPConfigMap(ipConfigMap)
 	if err != nil {

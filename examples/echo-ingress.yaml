@@ -1,0 +1,10 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-echo-svc
+  labels:
+    app: loadbalancer
+spec:
+  backend:
+    serviceName: echo-svc
+    servicePort: 80
