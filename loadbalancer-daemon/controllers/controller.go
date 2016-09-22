@@ -232,7 +232,7 @@ func getNodeInterface(kubeClient *client.Client) string {
 	}
 	iface := interfaceByIP(*nodeIP)
 	if iface == "" {
-		glog.Fatalf("Cannot find interface for IP: %v", nodeIP)
+		glog.Fatalf("Cannot find interface for IP: %v", *nodeIP)
 	}
 	return iface
 }

@@ -127,24 +127,26 @@ func MapKeys(m map[string]string) []string {
 }
 
 // GetNodeHostIP returns the provided node's IP, based on the priority:
-// 1. NodeExternalIP
+// 1. NodeInternalIP
 // 2. NodeLegacyHostIP
-// 3. NodeInternalIP
+// 3. NodeExternalIP
+
 func GetNodeHostIP(node api.Node) (*string, error) {
 	addresses := node.Status.Addresses
 	addressMap := make(map[api.NodeAddressType][]api.NodeAddress)
 	for i := range addresses {
 		addressMap[addresses[i].Type] = append(addressMap[addresses[i].Type], addresses[i])
 	}
-	if addresses, ok := addressMap[api.NodeExternalIP]; ok {
+	if addresses, ok := addressMap[api.NodeInternalIP]; ok {
 		return &addresses[0].Address, nil
 	}
 	if addresses, ok := addressMap[api.NodeLegacyHostIP]; ok {
 		return &addresses[0].Address, nil
 	}
-	if addresses, ok := addressMap[api.NodeInternalIP]; ok {
+	if addresses, ok := addressMap[api.NodeExternalIP]; ok {
 		return &addresses[0].Address, nil
 	}
+
 	return nil, fmt.Errorf("Host IP unknown; known addresses: %v", addresses)
 }
 

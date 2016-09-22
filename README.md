@@ -25,7 +25,7 @@ Service-loadbalancer support for L4 is very limited. The binding-port needs to b
 
 ### Software Loadbalancer using keepalived and nginx
 
-1. First we need to create the loadbalancer controller.
+1. First we need to create the loadbalancer controller. Make sure you provide the VIP allocation range. They must be reachable from outside. (Usually they are VIPs on the same subnet as the node network.)
   ```
   $ kubectl create -f examples/kube-loadbalancer-rc.yaml
   ```
