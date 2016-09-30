@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -25,6 +26,7 @@ import (
 	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/backend"
 	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/utils"
 	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/cache"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/controller/framework"
@@ -34,21 +36,29 @@ import (
 	"k8s.io/kubernetes/pkg/watch"
 )
 
-// LoadBalancerController watches Kubernetes API for ConfigMap and node changes
+// LoadBalancerController watches Kubernetes API for ConfigMap, Ingress and node changes
 // and reconfigures backend when needed
 type LoadBalancerController struct {
 	client              *client.Client
 	configMapController *framework.Controller
 	configMapLister     StoreToConfigMapLister
+	ingController       *framework.Controller
+	ingLister           StoreToIngressLister
 	nodeController      *framework.Controller
 	nodeLister          cache.StoreToNodeLister
 	configMapQueue      *taskQueue
+	ingQueue            *taskQueue
 	stopCh              chan struct{}
 	backendController   backend.BackendController
 }
 
 // StoreToConfigMapLister makes a Store that lists ConfigMap.
 type StoreToConfigMapLister struct {
+	cache.Store
+}
+
+// StoreToIngressLister makes a Store that lists Ingress.
+type StoreToIngressLister struct {
 	cache.Store
 }
 
@@ -62,6 +72,7 @@ func NewLoadBalancerController(kubeClient *client.Client, resyncPeriod time.Dura
 		backendController: controller,
 	}
 	lbController.configMapQueue = NewTaskQueue(lbController.syncConfigMap)
+	lbController.ingQueue = NewTaskQueue(lbController.syncIngressStatus)
 
 	configMapHandlers := framework.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -136,17 +147,54 @@ func NewLoadBalancerController(kubeClient *client.Client, resyncPeriod time.Dura
 		},
 		&api.Node{}, 0, nodeHandlers)
 
+	ingEventHandler := framework.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			lbController.ingQueue.enqueue(obj)
+		},
+		DeleteFunc: func(obj interface{}) {
+			lbController.ingQueue.enqueue(obj)
+		},
+		UpdateFunc: func(old, cur interface{}) {
+			if !reflect.DeepEqual(old, cur) {
+				lbController.ingQueue.enqueue(cur)
+			}
+		},
+	}
+
+	lbController.ingLister.Store, lbController.ingController = framework.NewInformer(
+		&cache.ListWatch{
+			ListFunc:  ingressListFunc(kubeClient, namespace),
+			WatchFunc: ingressWatchFunc(kubeClient, namespace),
+		},
+		&extensions.Ingress{}, resyncPeriod, ingEventHandler)
+
 	return &lbController, nil
 }
 
-// Run starts the configmap controller
+func ingressListFunc(c *client.Client, ns string) func(api.ListOptions) (runtime.Object, error) {
+	return func(opts api.ListOptions) (runtime.Object, error) {
+		return c.Extensions().Ingress(ns).List(opts)
+	}
+}
+
+func ingressWatchFunc(c *client.Client, ns string) func(options api.ListOptions) (watch.Interface, error) {
+	return func(options api.ListOptions) (watch.Interface, error) {
+		return c.Extensions().Ingress(ns).Watch(options)
+	}
+}
+
+// Run starts the configmap and ingress controller
 func (lbController *LoadBalancerController) Run() {
 	go lbController.nodeController.Run(lbController.stopCh)
 
 	// Sleep for 3 seconds to give some times for service and node lister to be synced
 	time.Sleep(time.Second * 3)
 	go lbController.configMapController.Run(lbController.stopCh)
+	go lbController.ingController.Run(lbController.stopCh)
+
 	go lbController.configMapQueue.run(time.Second, lbController.stopCh)
+	go lbController.ingQueue.run(time.Second, lbController.stopCh)
+
 	<-lbController.stopCh
 }
 
@@ -216,4 +264,26 @@ func (lbController *LoadBalancerController) updateConfigMapStatusBindIP(errMessa
 	if err != nil {
 		glog.Errorf("Error updating ConfigMap Status : %v", err)
 	}
+}
+
+func (lbController *LoadBalancerController) syncIngressStatus(key string) {
+	glog.Infof("Syncing Ingress Status %v", key)
+
+	obj, ingExists, err := lbController.ingLister.Store.GetByKey(key)
+	if err != nil {
+		lbController.ingQueue.requeue(key, err)
+		return
+	}
+
+	if !ingExists {
+		return
+	}
+	go func() {
+		ing := obj.(*extensions.Ingress)
+		err := lbController.backendController.HandleIngressCreate(ing)
+		if err != nil {
+			glog.Errorf("Error creating loadbalancer: %v", err)
+			return
+		}
+	}()
 }

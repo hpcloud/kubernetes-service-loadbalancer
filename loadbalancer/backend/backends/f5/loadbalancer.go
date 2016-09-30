@@ -30,6 +30,7 @@ import (
 	"github.com/hpcloud/kubernetes-service-loadbalancer/loadbalancer/utils"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/client/unversioned"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 )
 
 const (
@@ -129,7 +130,7 @@ func (ctr *F5Controller) HandleConfigMapCreate(configMap *api.ConfigMap) error {
 	}
 
 	//generate Virtual IP
-	bindIP, err := ctr.ipManager.GenerateVirtualIP(configMap)
+	bindIP, err := ctr.ipManager.GenerateVirtualIP(configMap, nil)
 	if err != nil {
 		err = fmt.Errorf("Error generating Virtual IP - %v", err)
 		return err
@@ -451,4 +452,10 @@ func (ctr *F5Controller) deletePreviouslyCreatedF5Resources(portNameList []strin
 	}
 	monitorName := utils.GetResourceName(monitorResource, name)
 	ctr.deleteF5Resource(monitorName, monitorResource)
+}
+
+
+// HandleIngressCreate creates a new F5 pool, nodes, monitor and virtual server to provide loadbalancing to the app defined in the ingress resource
+func (ctr *F5Controller) HandleIngressCreate(ingress *extensions.Ingress) error {
+	return nil
 }
